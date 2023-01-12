@@ -1,37 +1,42 @@
-import DropDownPicker from "react-native-dropdown-picker";
-import { StyleSheet } from "react-native";
-import { useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { StyleSheet, View } from "react-native";
+import ColorConstants from "../constants/ColorConstants";
 
-export default FormDropdown = ({
-  items,
-  setItems,
-  value,
-  setValue,
-  placeHolder,
-}) => {
-  const [open, setOpen] = useState(false);
+export default FormDropdown = ({ items, value, setValue, placeHolder }) => {
   return (
-    <DropDownPicker
-      open={open}
-      value={value}
-      items={items}
-      setOpen={setOpen}
-      setValue={setValue}
-      setItems={setItems}
-      dropDownContainerStyle={styles.dropDownContainerStyle}
-      style={styles.container}
-      placeholder={placeHolder}
-    />
+    <View style={styles.container}>
+      <Picker
+        selectedValue={value}
+        onValueChange={(itemValue, itemIndex) => setValue(itemValue)}
+        mode={"dropdown"}
+      >
+        <Picker.Item
+          value=""
+          label={placeHolder}
+          style={styles.itemContainer}
+        />
+        {items.map((item, index) => (
+          <Picker.Item
+            label={item.label}
+            value={item.value}
+            key={index}
+            style={styles.itemContainer}
+          />
+        ))}
+      </Picker>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    borderWidth: 1,
     marginVertical: 10,
+    minHeight: 40,
+    borderRadius: 5,
+    width: "100%",
   },
-  dropDownContainerStyle: {
-    backgroundColor: "white",
-    zIndex: 10000,
-    elevation: 1000,
+  itemContainer: {
+    backgroundColor: ColorConstants.COLOR_LIGHTEST,
   },
 });

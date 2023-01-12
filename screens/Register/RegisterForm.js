@@ -1,14 +1,18 @@
-import { Text, View, Button, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
-import FormInput from "../components/FormInput";
-import FormDropdown from "../components/FormDropdown";
+import Button from "../../components/Button";
+import ErrorText from "../../components/ErrorText";
+import FormInput from "../../components/FormInput";
+import FormDropdown from "../../components/FormDropdown";
+import DataConstants from "../../constants/DataConstants";
+import AppRoutes from "../../constants/AppRoutes";
 
-export default function RegisterScreen() {
+export default RegisterForm = ({ onSubmit, navigation }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     defaultValues: {
       employeeID: "",
@@ -21,22 +25,6 @@ export default function RegisterScreen() {
       division: "",
     },
   });
-  const [genders, setGenders] = useState([
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-  ]);
-  const [divisions, setDivisions] = useState([
-    { label: "App Dev", value: "App Dev" },
-    { label: "Agtech", value: "Agtech" },
-    { label: "Digital Health", value: "Digital Health" },
-    { label: "Ecommerce", value: "Ecommerce" },
-    { label: "Dynamics", value: "Dynamics" },
-    { label: "HR", value: "HR" },
-    { label: "Marketing", value: "Marketing" },
-    { label: "Finance", value: "Finance" },
-    { label: "NetSuite", value: "NetSuite" },
-  ]);
-  const onSubmit = (data) => console.log(data);
 
   return (
     <View style={styles.container}>
@@ -46,6 +34,7 @@ export default function RegisterScreen() {
             control={control}
             rules={{
               maxLength: 4,
+              required: true,
             }}
             render={({ field: { onChange, value } }) => (
               <FormInput
@@ -57,6 +46,7 @@ export default function RegisterScreen() {
             )}
             name="employeeID"
           />
+          {errors.employeeID && <ErrorText text={errors.employeeID.type} />}
         </View>
         <View style={styles.nameContainer}>
           <Controller
@@ -73,35 +63,44 @@ export default function RegisterScreen() {
             )}
             name="name"
           />
-          {errors.name && <Text>This is required.</Text>}
+          {errors.name && <ErrorText text={errors.name.type} />}
         </View>
       </View>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { value, onChange } }) => (
-          <FormDropdown
-            items={divisions}
-            setItems={setDivisions}
-            value={value}
-            setValue={onChange}
-            placeHolder="Division"
-          />
-        )}
-        name="division"
-      />
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, value } }) => (
-          <FormInput onChange={onChange} value={value} placeholder={"Email"} />
-        )}
-        name="email"
-      />
+      <View style={styles.divisionContainer}>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({ field: { value, onChange } }) => (
+            <FormDropdown
+              items={DataConstants.DIVISIONS}
+              value={value}
+              setValue={onChange}
+              placeHolder="Select Division"
+            />
+          )}
+          name="division"
+        />
+        {errors.division && <ErrorText text={errors.division.type} />}
+      </View>
+      <View style={styles.emailContainer}>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({ field: { onChange, value } }) => (
+            <FormInput
+              onChange={onChange}
+              value={value}
+              placeholder={"Email"}
+            />
+          )}
+          name="email"
+        />
+        {errors.email && <ErrorText text={errors.email.type} />}
+      </View>
       <View style={styles.rowContainer}>
         <View style={styles.phoneContainer}>
           <Controller
@@ -118,6 +117,7 @@ export default function RegisterScreen() {
             )}
             name="phone"
           />
+          {errors.phone && <ErrorText text={errors.phone.type} />}
         </View>
         <View style={styles.genderContainer}>
           <Controller
@@ -127,8 +127,7 @@ export default function RegisterScreen() {
             }}
             render={({ field: { onChange, value } }) => (
               <FormDropdown
-                items={genders}
-                setItems={setGenders}
+                items={DataConstants.GENDERS}
                 value={value}
                 setValue={onChange}
                 placeHolder={"Gender"}
@@ -136,6 +135,7 @@ export default function RegisterScreen() {
             )}
             name="gender"
           />
+          {errors.gender && <ErrorText text={errors.gender.type} />}
         </View>
       </View>
       <Controller
@@ -153,10 +153,12 @@ export default function RegisterScreen() {
         )}
         name="password"
       />
+      {errors.password && <ErrorText text={errors.password.type} />}
       <Controller
         control={control}
         rules={{
           required: true,
+          validate: (val) => val === watch("password"),
         }}
         render={({ field: { onChange, value } }) => (
           <FormInput
@@ -168,23 +170,31 @@ export default function RegisterScreen() {
         )}
         name="confirmPassword"
       />
-
-      <Button title="Submit" onPress={handleSubmit(onSubmit)} />
+      {errors.confirmPassword && (
+        <ErrorText text={errors.confirmPassword.type} />
+      )}
+      <View style={styles.buttonContainer}>
+        <Button text="Submit" onPress={handleSubmit(onSubmit)} width={"30%"} />
+        <Button
+          text="Login"
+          onPress={() => navigation.navigate(AppRoutes.Login)}
+          width={"30%"}
+        />
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: "10%",
+    justifyContent: "center",
   },
   rowContainer: {
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   employeeIDContainer: {
     width: "30%",
@@ -193,9 +203,18 @@ const styles = StyleSheet.create({
     width: "65%",
   },
   phoneContainer: {
-    width: "65%",
+    width: "55%",
   },
   genderContainer: {
-    width: "35%",
+    width: "40%",
+  },
+  divisionContainer: {
+    width: "100%",
+  },
+  emailContainer: {
+    width: "100%",
+  },
+  buttonContainer: {
+    flexDirection: "row",
   },
 });
