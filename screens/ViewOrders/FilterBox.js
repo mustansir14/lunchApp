@@ -1,6 +1,5 @@
 import { View, StyleSheet, Text } from "react-native";
 import FormDropdown from "../../components/FormDropdown";
-import ColorConstants from "../../constants/ColorConstants";
 import DataConstants from "../../constants/DataConstants";
 
 export default FilterBox = ({

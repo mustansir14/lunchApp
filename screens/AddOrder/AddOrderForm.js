@@ -236,6 +236,6 @@ const styles = StyleSheet.create({
   dateRowContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginLeft: "15%",
+    marginLeft: "10%",
   },
 });
